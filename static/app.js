@@ -43,12 +43,12 @@ const config = {
 
 // Preset locations
 const PRESETS = {
-    "Kebun-1": { lat: -0.487627, lon: 101.403397, location: "Kec. Tambang, Kab. Kampar, Riau" },
-    "Kebun-2": { lat:  4.346543, lon:  98.124288, location: "Kab. Langkat, Sumatera Utara" },
-    "Kebun-3": { lat:  1.384223, lon: 100.505484, location: "Kec. Rambah, Kab. Rokan Hulu, Riau" },
-    "Kebun-4": { lat:  1.512558, lon: 101.657155, location: "Kab. Pelalawan, Riau" },
-    "Kebun-5": { lat: -1.296778, lon: 101.557500, location: "Kec. Kamang Baru, Kab. Sijunjung, Sumbar" },
-    "Kebun-6": { lat: -1.294972, lon: 101.560500, location: "Kec. Kamang Baru, Kab. Sijunjung, Sumbar" }
+    "Kebun-1": { lat: -0.487637, lon: 101.403391, location: "Logas, Kabupaten Kuantan Singingi, Riau" },
+    "Kebun-2": { lat:  4.346562, lon:  98.124266, location: "Padang Langgis, Kabupaten Aceh Tamiang, Aceh" },
+    "Kebun-3": { lat:  1.384213, lon: 100.505484, location: "Tanjung Medan, Kabupaten Rokan Hilir, Riau" },
+    "Kebun-4": { lat:  1.512563, lon: 101.657141, location: "Tanjung Leban, Kabupaten Bengkalis, Riau" },
+    "Kebun-5": { lat: -1.296763, lon: 101.557484, location: "Koto Besar, Kabupaten Dharmasraya, Sumatera Barat" },
+    "Kebun-6": { lat: -1.294963, lon: 101.560516, location: "Koto Besar, Kabupaten Dharmasraya, Sumatera Barat" }
 };
 
 // Frontend Localization Map
@@ -548,13 +548,38 @@ function fetchForecast(lat, lon) {
     }
     
     fetch(url)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(text => {
+                    throw new Error(`HTTP ${res.status}: ${text || 'Empty response'}`);
+                });
+            }
+            return res.json();
+        })
         .then(res => {
             if (res.status === 'success') {
                 forecastData = res.data;
                 renderForecast(forecastData);
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
+                
+                // Show a warning banner if simulation mode is active
+                const isIndo = currentLanguage === 'Bahasa Indonesia';
+                const mockAlertId = 'mock-data-warning-alert';
+                // Remove existing mock alert if it exists
+                const existing = document.getElementById(mockAlertId);
+                if (existing) existing.remove();
+                
+                if (res.is_mock) {
+                    const mockAlert = document.createElement('div');
+                    mockAlert.id = mockAlertId;
+                    mockAlert.className = 'alert-box warning';
+                    mockAlert.style.marginBottom = '1rem';
+                    mockAlert.innerHTML = isIndo
+                        ? `<p>⚠️ <strong>Mode Simulasi Aktif:</strong> Gagal terhubung ke API satelit cuaca (Open-Meteo). Sistem menampilkan data prakiraan simulasi untuk menjaga kelancaran operasi planner.</p>`
+                        : `<p>⚠️ <strong>Simulation Mode Active:</strong> Failed to connect to satellite weather API (Open-Meteo). System is displaying simulated forecast data to keep the operations planner functional.</p>`;
+                    document.getElementById('summary-alerts').prepend(mockAlert);
+                }
             } else {
                 showError("Gagal memuat data: " + res.message);
             }
@@ -972,12 +997,19 @@ function fetchAuditData(days) {
     }
     
     if (isNaN(lat) || isNaN(lon)) {
-        lat = -0.487627;
-        lon = 101.403397;
+        lat = -0.487637;
+        lon = 101.403391;
     }
     
     fetch(`/api/audit?days=${days}&lat=${lat}&lon=${lon}`)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(text => {
+                    throw new Error(`HTTP ${res.status}: ${text || 'Empty response'}`);
+                });
+            }
+            return res.json();
+        })
         .then(res => {
             if (res.status === 'success') {
                 auditData = res.data;
@@ -988,12 +1020,32 @@ function fetchAuditData(days) {
                 document.getElementById('val-audit-wind').textContent = `${res.metrics.wind}%`;
                 
                 renderAudit(auditData);
+                
+                // Show mock warning on Audit tab as well if needed
+                const isIndo = currentLanguage === 'Bahasa Indonesia';
+                const mockAuditAlertId = 'mock-audit-warning-alert';
+                const existing = document.getElementById(mockAuditAlertId);
+                if (existing) existing.remove();
+                
+                if (res.is_mock) {
+                    const mockAlert = document.createElement('div');
+                    mockAlert.id = mockAuditAlertId;
+                    mockAlert.className = 'alert-box warning';
+                    mockAlert.style.marginBottom = '1rem';
+                    mockAlert.innerHTML = isIndo
+                        ? `<p>⚠️ <strong>Data Audit Simulasi:</strong> Gagal terhubung ke API Open-Meteo Archive. Menampilkan data historis simulasi untuk tujuan visualisasi.</p>`
+                        : `<p>⚠️ <strong>Simulated Audit Data:</strong> Failed to connect to Open-Meteo Archive API. Displaying simulated historical comparison for visualization purposes.</p>`;
+                    
+                    const viewAudit = document.getElementById('view-audit');
+                    viewAudit.insertBefore(mockAlert, viewAudit.firstChild);
+                }
             } else {
                 alert("Gagal memuat audit data: " + res.message);
             }
         })
         .catch(err => {
             console.error("Audit fetch error: ", err);
+            alert("Koneksi bermasalah saat memuat audit data: " + err.message);
         });
 }
 

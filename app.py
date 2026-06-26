@@ -146,12 +146,12 @@ LOCALES = {
 
 # 1. Preset locations
 PRESETS = {
-    "Kebun-1": {"lat": -0.487627, "lon": 101.403397},
-    "Kebun-2": {"lat": 4.346543, "lon": 98.124288},
-    "Kebun-3": {"lat": 1.384223, "lon": 100.505484},
-    "Kebun-4": {"lat": 1.512558, "lon": 101.657155},
-    "Kebun-5": {"lat": -1.296778, "lon": 101.557500},
-    "Kebun-6": {"lat": -1.294972, "lon": 101.560500}
+    "Kebun-1": {"lat": -0.487637, "lon": 101.403391},
+    "Kebun-2": {"lat": 4.346562, "lon": 98.124266},
+    "Kebun-3": {"lat": 1.384213, "lon": 100.505484},
+    "Kebun-4": {"lat": 1.512563, "lon": 101.657141},
+    "Kebun-5": {"lat": -1.296763, "lon": 101.557484},
+    "Kebun-6": {"lat": -1.294963, "lon": 101.560516}
 }
 
 st.sidebar.title(LOCALES[lang]["estate_controls"])
