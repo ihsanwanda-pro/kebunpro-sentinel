@@ -6,9 +6,9 @@ from agronomy import calculate_feasibility, DEFAULT_CONFIG
 
 app = Flask(__name__)
 
-# Preset coordinates (e.g., Pekanbaru, Riau)
-LATITUDE = 0.507
-LONGITUDE = 101.447
+# Preset coordinates (e.g., Kebun-1)
+LATITUDE = -0.487627
+LONGITUDE = 101.403397
 
 def fetch_weather_forecast(latitude=LATITUDE, longitude=LONGITUDE):
     weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,relative_humidity_2m_max,et0_fao_evapotranspiration&timezone=Asia%2FSingapore"

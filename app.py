@@ -146,9 +146,12 @@ LOCALES = {
 
 # 1. Preset locations
 PRESETS = {
-    "Riau (Pekanbaru)": {"lat": 0.507, "lon": 101.447},
-    "North Sumatra (Medan)": {"lat": 3.595, "lon": 98.672},
-    "Central Kalimantan (Sampit)": {"lat": -2.535, "lon": 112.956}
+    "Kebun-1": {"lat": -0.487627, "lon": 101.403397},
+    "Kebun-2": {"lat": 4.346543, "lon": 98.124288},
+    "Kebun-3": {"lat": 1.384223, "lon": 100.505484},
+    "Kebun-4": {"lat": 1.512558, "lon": 101.657155},
+    "Kebun-5": {"lat": -1.296778, "lon": 101.557500},
+    "Kebun-6": {"lat": -1.294972, "lon": 101.560500}
 }
 
 st.sidebar.title(LOCALES[lang]["estate_controls"])
@@ -159,8 +162,8 @@ if location_mode == LOCALES[lang]["preset_estates"]:
     lat = PRESETS[selected_preset]["lat"]
     lon = PRESETS[selected_preset]["lon"]
 else:
-    lat = st.sidebar.number_input(LOCALES[lang]["latitude"], value=0.507, format="%.4f")
-    lon = st.sidebar.number_input(LOCALES[lang]["longitude"], value=101.447, format="%.4f")
+    lat = st.sidebar.number_input(LOCALES[lang]["latitude"], value=-0.4876, format="%.4f")
+    lon = st.sidebar.number_input(LOCALES[lang]["longitude"], value=101.4034, format="%.4f")
 
 # 2. Configurable parameters
 st.sidebar.subheader(LOCALES[lang]["agronomic_params"])

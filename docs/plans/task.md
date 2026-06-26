@@ -1,7 +1,7 @@
 | Task | Status | Description |
 |---|---|---|
-| 1 | `[x]` | Update HTML `templates/dashboard.html` to remove language/theme dropdowns and buttons |
-| 2 | `[x]` | Refactor CSS `static/style.css` to clean up dark mode variables |
-| 3 | `[x]` | Refactor JS `static/app.js` to lock language, remove theme toggles, and use the correct `https://toko.sawitpro.id/?` URL |
-| 4 | `[x]` | Rewrite JS `static/app.js`'s `updateSummaryAlerts` function to group alerts by day (Option A) |
-| 5 | `[x]` | Verify the app locally with unit tests and browser subagent |
+| 1 | `[x]` | Update default latitude/longitude preset coordinates in `main.py` |
+| 2 | `[x]` | Update select-preset option list and default values in `templates/dashboard.html` |
+| 3 | `[x]` | Update PRESETS dictionary and default fallbacks in `static/app.js` |
+| 4 | `[x]` | Update preset coordinates in `app.py` |
+| 5 | `[/]` | Verify the application is fully functional |
