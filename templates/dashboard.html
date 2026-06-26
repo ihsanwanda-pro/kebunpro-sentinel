@@ -155,11 +155,49 @@
                     <!-- Dynamic bilingual HTML injected by JS -->
                 </div>
 
+                <!-- Kebun Context Card -->
+                <div id="kebun-context-card" class="kebun-context-card">
+                    <div class="kcc-header">
+                        <span class="kcc-pin">📍</span>
+                        <span id="kcc-name" class="kcc-name" title="Klik untuk mengubah nama">Kebun-1</span>
+                        <button id="kcc-edit-btn" class="kcc-edit-btn" title="Ubah nama kebun">✏️</button>
+                        <input id="kcc-name-input" class="kcc-name-input hidden"
+                               type="text" maxlength="30" placeholder="Nama kebun..." />
+                        <span class="kcc-sep">·</span>
+                        <span id="kcc-location" class="kcc-location">Kec. Tambang, Kab. Kampar, Riau</span>
+                    </div>
+                    <div class="kcc-divider"></div>
+                    <div class="kcc-stats">
+                        <div class="kcc-stat-item">
+                            <span class="kcc-stat-icon">🌡️</span>
+                            <span id="kcc-temp" class="kcc-stat-value skeleton">--</span>
+                        </div>
+                        <div class="kcc-stat-item">
+                            <span class="kcc-stat-icon">🌧️</span>
+                            <span id="kcc-rain" class="kcc-stat-value skeleton">--</span>
+                        </div>
+                        <div class="kcc-stat-item">
+                            <span class="kcc-stat-icon">💨</span>
+                            <span id="kcc-wind" class="kcc-stat-value skeleton">--</span>
+                        </div>
+                        <div class="kcc-stat-item">
+                            <span class="kcc-stat-icon">💧</span>
+                            <span id="kcc-humidity" class="kcc-stat-value skeleton">--</span>
+                        </div>
+                        <div class="kcc-stat-item">
+                            <span class="kcc-stat-icon">🌱</span>
+                            <span id="kcc-soil" class="kcc-stat-value skeleton">--</span>
+                        </div>
+                    </div>
+                    <div id="kcc-date" class="kcc-date skeleton-line">Memuat...</div>
+                </div>
+
                 <!-- Forecast Cards List -->
                 <div id="forecast-list" class="forecast-list">
                     <!-- Cards will be injected via javascript -->
                 </div>
             </div>
+
 
             <!-- SECTION 2: ACCURACY AUDIT TAB -->
             <div id="view-audit" class="tab-content hidden">
