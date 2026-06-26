@@ -336,7 +336,9 @@ function updateSummaryAlerts(data, conf, lang) {
     const alertsContainer = document.getElementById('summary-alerts');
     alertsContainer.innerHTML = '';
     
-    let alerts = [];
+    let worstSeverity = 'success'; // can be 'success', 'warning', or 'error'
+    let dailyAlerts = []; // Array of { day: 'Senin', warnings: [...] }
+    
     const dayMap = {
         "Sunday": "Minggu", "Monday": "Senin", "Tuesday": "Selasa", "Wednesday": "Rabu",
         "Thursday": "Kamis", "Friday": "Jumat", "Saturday": "Sabtu"
@@ -353,72 +355,88 @@ function updateSummaryAlerts(data, conf, lang) {
         }
         
         const scores = calculateFeasibilityJS(dayData.weather, conf);
+        let dayWarnings = [];
         
-        // Fertilizing
+        // 1. Fertilizing
         if (scores.fertilizer < 40.0) {
-            alerts.push({
-                type: 'error',
-                text: isIndo ? 
-                    `⚠️ ${dayLabel}: Pemupukan <strong>Tidak Cocok</strong> (${Math.round(scores.fertilizer)}%). Curah hujan tinggi atau kondisi tanah tidak memadai.` : 
-                    `⚠️ ${dayLabel}: Fertilizing is <strong>Unsuitable</strong> (${Math.round(scores.fertilizer)}%). High rain or poor soil conditions.`
-            });
+            worstSeverity = 'error';
+            dayWarnings.push(isIndo ? 
+                `Pemupukan <strong>Tidak Cocok</strong> (${Math.round(scores.fertilizer)}%)` : 
+                `Fertilizing <strong>Unsuitable</strong> (${Math.round(scores.fertilizer)}%)`
+            );
         } else if (scores.fertilizer < 75.0) {
-            alerts.push({
-                type: 'warning',
-                text: isIndo ? 
-                    `ℹ️ ${dayLabel}: Pemupukan <strong>Hati-hati</strong> (${Math.round(scores.fertilizer)}%). Batasi pemupukan jika kelembapan kurang optimal.` : 
-                    `ℹ️ ${dayLabel}: Fertilizing requires <strong>Caution</strong> (${Math.round(scores.fertilizer)}%). Limit application if moisture is sub-optimal.`
-            });
+            if (worstSeverity !== 'error') worstSeverity = 'warning';
+            dayWarnings.push(isIndo ? 
+                `Pemupukan <strong>Hati-hati</strong> (${Math.round(scores.fertilizer)}%)` : 
+                `Fertilizing <strong>Caution</strong> (${Math.round(scores.fertilizer)}%)`
+            );
         }
         
-        // Harvesting
+        // 2. Harvesting
         if (scores.harvesting < 40.0) {
-            alerts.push({
-                type: 'error',
-                text: isIndo ? 
-                    `⚠️ ${dayLabel}: Pemanenan <strong>Tidak Cocok</strong> (${Math.round(scores.harvesting)}%). Jalan berlumpur tebal mempersulit logistik truk.` : 
-                    `⚠️ ${dayLabel}: Harvesting is <strong>Unsuitable</strong> (${Math.round(scores.harvesting)}%). Thick mud restricts truck logistics.`
-            });
+            worstSeverity = 'error';
+            dayWarnings.push(isIndo ? 
+                `Pemanenan <strong>Tidak Cocok</strong> (${Math.round(scores.harvesting)}%)` : 
+                `Harvesting <strong>Unsuitable</strong> (${Math.round(scores.harvesting)}%)`
+            );
         } else if (scores.harvesting < 75.0) {
-            alerts.push({
-                type: 'warning',
-                text: isIndo ? 
-                    `ℹ️ ${dayLabel}: Pemanenan <strong>Hati-hati</strong> (${Math.round(scores.harvesting)}%). Perhatikan kondisi jalan kebun.` : 
-                    `ℹ️ ${dayLabel}: Harvesting requires <strong>Caution</strong> (${Math.round(scores.harvesting)}%). Monitor plantation road conditions.`
-            });
+            if (worstSeverity !== 'error') worstSeverity = 'warning';
+            dayWarnings.push(isIndo ? 
+                `Pemanenan <strong>Hati-hati</strong> (${Math.round(scores.harvesting)}%)` : 
+                `Harvesting <strong>Caution</strong> (${Math.round(scores.harvesting)}%)`
+            );
         }
         
-        // Spraying
+        // 3. Spraying
         if (scores.spraying < 40.0) {
-            alerts.push({
-                type: 'error',
-                text: isIndo ? 
-                    `⚠️ ${dayLabel}: Penyemprotan <strong>Tidak Cocok</strong> (${Math.round(scores.spraying)}%). Batas angin kritis terlampaui atau kelembapan tidak sesuai.` : 
-                    `⚠️ ${dayLabel}: Spraying is <strong>Unsuitable</strong> (${Math.round(scores.spraying)}%). Critical wind limit exceeded or humidity out of bounds.`
-            });
+            worstSeverity = 'error';
+            dayWarnings.push(isIndo ? 
+                `Penyemprotan <strong>Tidak Cocok</strong> (${Math.round(scores.spraying)}%)` : 
+                `Spraying <strong>Unsuitable</strong> (${Math.round(scores.spraying)}%)`
+            );
         } else if (scores.spraying < 75.0) {
-            alerts.push({
-                type: 'warning',
-                text: isIndo ? 
-                    `ℹ️ ${dayLabel}: Penyemprotan <strong>Hati-hati</strong> (${Math.round(scores.spraying)}%). Risiko drift sedang, pertimbangkan jadwal ulang.` : 
-                    `ℹ️ ${dayLabel}: Spraying requires <strong>Caution</strong> (${Math.round(scores.spraying)}%). Moderate drift risk, consider rescheduling.`
+            if (worstSeverity !== 'error') worstSeverity = 'warning';
+            dayWarnings.push(isIndo ? 
+                `Penyemprotan <strong>Hati-hati</strong> (${Math.round(scores.spraying)}%)` : 
+                `Spraying <strong>Caution</strong> (${Math.round(scores.spraying)}%)`
+            );
+        }
+        
+        if (dayWarnings.length > 0) {
+            dailyAlerts.push({
+                day: dayLabel,
+                warnings: dayWarnings
             });
         }
     }
     
-    if (alerts.length === 0) {
-        const successBox = document.createElement('div');
-        successBox.className = 'alert-box success';
-        successBox.innerHTML = `<p>${LOCALES[lang].insight_optimal_all}</p>`;
-        alertsContainer.appendChild(successBox);
+    // Render as a single unified card
+    const box = document.createElement('div');
+    box.className = `alert-box ${worstSeverity}`;
+    
+    if (worstSeverity === 'success') {
+        box.innerHTML = `<p>${LOCALES[lang].insight_optimal_all}</p>`;
     } else {
-        alerts.forEach(alert => {
-            const box = document.createElement('div');
-            box.className = `alert-box ${alert.type}`;
-            box.innerHTML = `<p>${alert.text}</p>`;
-            alertsContainer.appendChild(box);
+        const titleIcon = worstSeverity === 'error' ? '⚠️' : 'ℹ️';
+        const titleText = isIndo ? 
+            `${titleIcon} <strong>Peringatan Kegiatan Operasional (3 Hari Ke Depan):</strong>` : 
+            `${titleIcon} <strong>Operational Advisories (Next 3 Days):</strong>`;
+            
+        let listHtml = `<div style="width: 100%;">
+            <p style="margin-bottom: 0.5rem; font-weight: 700;">${titleText}</p>
+            <ul style="padding-left: 1.25rem; margin: 0; font-size: 0.85rem; line-height: 1.5;">`;
+            
+        dailyAlerts.forEach(alert => {
+            listHtml += `<li style="margin-bottom: 0.35rem;">
+                <strong>${alert.day}:</strong> ${alert.warnings.join(', ')}
+            </li>`;
         });
+        
+        listHtml += `</ul></div>`;
+        box.innerHTML = listHtml;
     }
+    
+    alertsContainer.appendChild(box);
 }
 
 // Render SawitPro Shop CTA Card
@@ -434,7 +452,7 @@ function updateMarketingCard(lang) {
                     <h4>🛡️ Kemitraan Toko SawitPro</h4>
                     <p><b>Pastikan gunakan pupuk 100% Asli!</b> Beli pupuk premium, racun hama berkualitas, dan semua alat kebutuhan kebun sawit Anda secara aman di sini.</p>
                 </div>
-                <a href="https://tokopedia.link/sawitpro" target="_blank" class="sawit-cta-btn">🔗 Kunjungi Toko SawitPro</a>
+                <a href="https://toko.sawitpro.id/?" target="_blank" class="sawit-cta-btn">🔗 Kunjungi Toko SawitPro</a>
             </div>
         `;
     } else {
@@ -445,7 +463,7 @@ function updateMarketingCard(lang) {
                     <h4>🛡️ SawitPro Partnership Store</h4>
                     <p><b>Ensure 100% Genuine Fertilizers!</b> Buy premium fertilizers, effective crop chemicals, and all your harvesting tool needs safely.</p>
                 </div>
-                <a href="https://tokopedia.link/sawitpro" target="_blank" class="sawit-cta-btn">🔗 Visit SawitPro Store</a>
+                <a href="https://toko.sawitpro.id/?" target="_blank" class="sawit-cta-btn">🔗 Visit SawitPro Store</a>
             </div>
         `;
     }
@@ -756,37 +774,8 @@ function initializeSidebar() {
 
 // Light & Dark Theme Controller
 function initializeTheme() {
-    const btn = document.getElementById('btn-theme-toggle');
-    
-    // Check saved state
-    const saved = localStorage.getItem('theme-preference');
-    if (saved === 'dark') {
-        isDarkMode = true;
-        document.body.classList.add('dark-mode');
-        btn.textContent = '☀️';
-    } else {
-        isDarkMode = false;
-        document.body.classList.remove('dark-mode');
-        btn.textContent = '🌙';
-    }
-    
-    btn.addEventListener('click', () => {
-        isDarkMode = !isDarkMode;
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-            btn.textContent = '☀️';
-            localStorage.setItem('theme-preference', 'dark');
-        } else {
-            document.body.classList.remove('dark-mode');
-            btn.textContent = '🌙';
-            localStorage.setItem('theme-preference', 'light');
-        }
-        
-        // Redraw audit charts to update theme colors
-        if (auditData.length > 0) {
-            renderAudit(auditData);
-        }
-    });
+    isDarkMode = false;
+    document.body.classList.remove('dark-mode');
 }
 
 // Navigation Tabs Router
@@ -1034,11 +1023,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeLocationSettings();
     initializeParametersSliders();
     initializeAuditEvents();
-    
-    const selectLang = document.getElementById('select-lang');
-    selectLang.addEventListener('change', (e) => {
-        updatePageLanguage(e.target.value);
-    });
     
     updatePageLanguage('Bahasa Indonesia');
     fetchForecast();

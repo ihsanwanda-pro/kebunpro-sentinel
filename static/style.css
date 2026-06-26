@@ -32,39 +32,6 @@
     --input-text: #1e293b;
 }
 
-body.dark-mode {
-    --bg-color: #0e1117;
-    --text-color: #ecf0f1;
-    --card-bg: #1f2937;
-    --header-bg: #111827;
-    --header-text: #f3f4f6;
-    --border-color: #374151;
-    
-    --badge-green-bg: #064e3b;
-    --badge-green-text: #34d399;
-    --badge-yellow-bg: #78350f;
-    --badge-yellow-text: #fbbf24;
-    --badge-red-bg: #7f1d1d;
-    --badge-red-text: #f87171;
-    
-    --cta-bg: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
-    --cta-border: #34d399;
-    --cta-btn-bg: #10b981;
-    --cta-btn-hover: #059669;
-    
-    --tab-inactive-bg: #111827;
-    --tab-inactive-text: #9ca3af;
-    
-    --tooltip-bg: #111827;
-    --tooltip-text: #e5e7eb;
-    
-    --sidebar-bg: #111827;
-    --sidebar-text: #ecf0f1;
-    
-    --input-bg: #1f2937;
-    --input-text: #ecf0f1;
-}
-
 /* Base Styles */
 * {
     margin: 0;
