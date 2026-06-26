@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template, request
 import requests
 import datetime
+import os
 from agronomy import calculate_feasibility, DEFAULT_CONFIG
 
 app = Flask(__name__)
@@ -164,4 +165,5 @@ def audit_api():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
