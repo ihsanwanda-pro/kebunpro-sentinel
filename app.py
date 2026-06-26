@@ -40,6 +40,17 @@ if dark_mode:
         .score-badge-green { background-color: #064e3b !important; color: #34d399 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
         .score-badge-yellow { background-color: #78350f !important; color: #fbbf24 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
         .score-badge-red { background-color: #7f1d1d !important; color: #f87171 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+        .sawit-cta-card { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%); border-radius: 12px; padding: 1.25rem; margin: 1rem 0; border: 1px solid #34d399; }
+        .sawit-cta-inner { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .sawit-cta-icon { font-size: 2.5rem; }
+        .sawit-cta-text { flex: 1; min-width: 200px; }
+        .sawit-cta-text h4 { color: #34d399 !important; margin: 0 0 0.25rem 0; font-size: 1.1rem; }
+        .sawit-cta-text p { color: #d1fae5 !important; margin: 0; font-size: 0.9rem; line-height: 1.4; }
+        .sawit-cta-btn { display: inline-block; background: #10b981; color: #fff !important; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95rem; transition: background 0.2s, transform 0.2s; white-space: nowrap; }
+        .sawit-cta-btn:hover { background: #059669; transform: translateY(-1px); }
+        .cal-cell { position: relative; cursor: pointer; }
+        .cal-cell .cal-tooltip { visibility: hidden; opacity: 0; position: absolute; z-index: 999; bottom: 110%; left: 50%; transform: translateX(-50%); background: #1f2937; color: #e5e7eb; padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: opacity 0.2s; pointer-events: none; }
+        .cal-cell:hover .cal-tooltip { visibility: visible; opacity: 1; }
     </style>
     """, unsafe_allow_html=True)
 else:
@@ -68,6 +79,17 @@ else:
         .score-badge-green { background-color: #e8f5e9 !important; color: #2e7d32 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
         .score-badge-yellow { background-color: #fffde7 !important; color: #f57f17 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
         .score-badge-red { background-color: #ffebee !important; color: #c62828 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+        .sawit-cta-card { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%); border-radius: 12px; padding: 1.25rem; margin: 1rem 0; border: 1px solid #6ee7b7; }
+        .sawit-cta-inner { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .sawit-cta-icon { font-size: 2.5rem; }
+        .sawit-cta-text { flex: 1; min-width: 200px; }
+        .sawit-cta-text h4 { color: #065f46 !important; margin: 0 0 0.25rem 0; font-size: 1.1rem; }
+        .sawit-cta-text p { color: #047857 !important; margin: 0; font-size: 0.9rem; line-height: 1.4; }
+        .sawit-cta-btn { display: inline-block; background: #059669; color: #fff !important; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95rem; transition: background 0.2s, transform 0.2s; white-space: nowrap; }
+        .sawit-cta-btn:hover { background: #047857; transform: translateY(-1px); }
+        .cal-cell { position: relative; cursor: pointer; }
+        .cal-cell .cal-tooltip { visibility: hidden; opacity: 0; position: absolute; z-index: 999; bottom: 110%; left: 50%; transform: translateX(-50%); background: #f8fafc; color: #1e293b; padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; transition: opacity 0.2s; pointer-events: none; }
+        .cal-cell:hover .cal-tooltip { visibility: visible; opacity: 1; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -434,27 +456,102 @@ try:
         # Field Recommendations / Insights Box
         st.subheader(LOCALES[lang]["outlook_insights"])
         insights = []
-        # Analyze next 3 days
-        next_3_days = df.head(3)
         
-        # Heavy rain check
-        heavy_rain_days = next_3_days[next_3_days["rain"] > config["fert_runoff_rain"]]
-        if not heavy_rain_days.empty:
-            days_str = ", ".join(heavy_rain_days["date"].dt.strftime("%A").unique())
-            insights.append(LOCALES[lang]["insight_rain_fert"].format(day=days_str))
+        # Day name translation map for Indonesian
+        day_map_id = {
+            "Monday": "Senin", "Tuesday": "Selasa", "Wednesday": "Rabu",
+            "Thursday": "Kamis", "Friday": "Jumat", "Saturday": "Sabtu", "Sunday": "Minggu"
+        }
+        
+        # Analyze next 3 days using actual calculated scores
+        for i in range(min(3, len(df))):
+            row = df.iloc[i]
+            day_en = row["date"].strftime("%A")
+            day_label = day_map_id.get(day_en, day_en) if lang == "Bahasa Indonesia" else day_en
             
-        # Wind check
-        high_wind_days = next_3_days[next_3_days["wind_speed"] > config["spray_drift_wind_med"]]
-        if not high_wind_days.empty:
-            days_str = ", ".join(high_wind_days["date"].dt.strftime("%A").unique())
-            insights.append(LOCALES[lang]["insight_wind_spray"].format(day=days_str))
+            # Check Fertilizing
+            if row["Fertilizing"] < 40.0:
+                insights.append(
+                    f"⚠️ {day_label}: Pemupukan **Tidak Cocok** ({int(row['Fertilizing'])}%). Curah hujan tinggi atau kondisi tanah tidak memadai."
+                    if lang == "Bahasa Indonesia" else
+                    f"⚠️ {day_label}: Fertilization is **Unsuitable** ({int(row['Fertilizing'])}%). High rain or poor soil conditions."
+                )
+            elif row["Fertilizing"] < 75.0:
+                insights.append(
+                    f"ℹ️ {day_label}: Pemupukan **Hati-hati** ({int(row['Fertilizing'])}%). Batasi pemupukan jika kelembapan kurang optimal."
+                    if lang == "Bahasa Indonesia" else
+                    f"ℹ️ {day_label}: Fertilization requires **Caution** ({int(row['Fertilizing'])}%). Limit application if moisture is sub-optimal."
+                )
             
+            # Check Harvesting
+            if row["Harvesting"] < 40.0:
+                insights.append(
+                    f"⚠️ {day_label}: Pemanenan **Tidak Cocok** ({int(row['Harvesting'])}%). Jalan berlumpur tebal mempersulit logistik truk."
+                    if lang == "Bahasa Indonesia" else
+                    f"⚠️ {day_label}: Harvesting is **Unsuitable** ({int(row['Harvesting'])}%). Thick mud restricts truck logistics."
+                )
+            elif row["Harvesting"] < 75.0:
+                insights.append(
+                    f"ℹ️ {day_label}: Pemanenan **Hati-hati** ({int(row['Harvesting'])}%). Perhatikan kondisi jalan kebun."
+                    if lang == "Bahasa Indonesia" else
+                    f"ℹ️ {day_label}: Harvesting requires **Caution** ({int(row['Harvesting'])}%). Monitor plantation road conditions."
+                )
+            
+            # Check Spraying
+            if row["Spraying"] < 40.0:
+                insights.append(
+                    f"⚠️ {day_label}: Penyemprotan **Tidak Cocok** ({int(row['Spraying'])}%). Batas angin kritis terlampaui atau kelembapan tidak sesuai."
+                    if lang == "Bahasa Indonesia" else
+                    f"⚠️ {day_label}: Spraying is **Unsuitable** ({int(row['Spraying'])}%). Critical wind limit exceeded or humidity out of bounds."
+                )
+            elif row["Spraying"] < 75.0:
+                insights.append(
+                    f"ℹ️ {day_label}: Penyemprotan **Hati-hati** ({int(row['Spraying'])}%). Risiko drift sedang, pertimbangkan jadwal ulang."
+                    if lang == "Bahasa Indonesia" else
+                    f"ℹ️ {day_label}: Spraying requires **Caution** ({int(row['Spraying'])}%). Moderate drift risk, consider rescheduling."
+                )
+        
         if not insights:
             st.success(LOCALES[lang]["insight_optimal_all"])
         else:
             for insight in insights:
-                st.warning(insight)
+                if "Tidak Cocok" in insight or "Unsuitable" in insight:
+                    st.error(insight)
+                else:
+                    st.warning(insight)
                 
+        # --- SawitPro Shop CTA Card ---
+        st.markdown("---")
+        if lang == "Bahasa Indonesia":
+            cta_html = """
+            <div class="sawit-cta-card">
+                <div class="sawit-cta-inner">
+                    <div class="sawit-cta-icon">🛒</div>
+                    <div class="sawit-cta-text">
+                        <h4>Pastikan Gunakan Pupuk 100% Asli!</h4>
+                        <p>Beli pupuk, pestisida, dan kebutuhan perkebunan Anda langsung dari toko resmi kami.<br>
+                        <strong>Gratis ongkir</strong> untuk pembelian pertama!</p>
+                    </div>
+                    <a href="https://tokopedia.link/sawitpro" target="_blank" class="sawit-cta-btn">🔗 Kunjungi Toko SawitPro</a>
+                </div>
+            </div>
+            """
+        else:
+            cta_html = """
+            <div class="sawit-cta-card">
+                <div class="sawit-cta-inner">
+                    <div class="sawit-cta-icon">🛒</div>
+                    <div class="sawit-cta-text">
+                        <h4>Use 100% Genuine Fertilizer!</h4>
+                        <p>Buy fertilizers, pesticides, and plantation supplies directly from our official store.<br>
+                        <strong>Free shipping</strong> on your first order!</p>
+                    </div>
+                    <a href="https://tokopedia.link/sawitpro" target="_blank" class="sawit-cta-btn">🔗 Visit SawitPro Store</a>
+                </div>
+            </div>
+            """
+        st.markdown(cta_html, unsafe_allow_html=True)
+
         # Main Planner Section below KPIs
         col_map, col_cal = st.columns([1, 2])
         
@@ -466,13 +563,46 @@ try:
             
         with col_cal:
             st.subheader(LOCALES[lang]["ops_calendar_title"])
-            df_cal = pd.DataFrame({
-                LOCALES[lang]["date_col"]: df["date"].dt.strftime("%A, %b %d"),
-                LOCALES[lang]["fert_col"]: badges_fert,
-                LOCALES[lang]["harv_col"]: badges_harv,
-                LOCALES[lang]["spray_col"]: badges_spray
-            })
-            st.write(df_cal.to_html(escape=False, index=False), unsafe_allow_html=True)
+            
+            # Build calendar HTML with hover tooltips
+            day_map_cal = {
+                "Monday": "Senin", "Tuesday": "Selasa", "Wednesday": "Rabu",
+                "Thursday": "Kamis", "Friday": "Jumat", "Saturday": "Sabtu", "Sunday": "Minggu"
+            }
+            header_date = LOCALES[lang]["date_col"]
+            header_fert = LOCALES[lang]["fert_col"]
+            header_harv = LOCALES[lang]["harv_col"]
+            header_spray = LOCALES[lang]["spray_col"]
+            
+            rows_html = ""
+            for pos, (i, row) in enumerate(df.iterrows()):
+                day_en = row["date"].strftime("%A")
+                day_label = day_map_cal.get(day_en, day_en) if lang == "Bahasa Indonesia" else day_en
+                date_str = row["date"].strftime("%b %d")
+                display_date = f"{day_label}, {date_str}"
+                
+                # Tooltip detail string
+                tip = (f'🌡️ {row["temp_max"]:.1f}°C &nbsp; 🌧️ {row["rain"]:.1f}mm &nbsp; '
+                       f'💨 {row["wind_speed"]:.1f}km/h &nbsp; 💧 {row["humidity"]:.0f}% &nbsp; '
+                       f'🌱 {row["soil_moisture"]:.0f}%')
+                
+                def wrap_tooltip(badge, tip_text):
+                    return f'<div class="cal-cell">{badge}<div class="cal-tooltip">{tip_text}</div></div>'
+                
+                rows_html += f"<tr><td>{display_date}</td>"
+                rows_html += f"<td>{wrap_tooltip(badges_fert[pos], tip)}</td>"
+                rows_html += f"<td>{wrap_tooltip(badges_harv[pos], tip)}</td>"
+                rows_html += f"<td>{wrap_tooltip(badges_spray[pos], tip)}</td></tr>"
+            
+            cal_table = f"""
+            <table>
+                <thead><tr>
+                    <th>{header_date}</th><th>{header_fert}</th><th>{header_harv}</th><th>{header_spray}</th>
+                </tr></thead>
+                <tbody>{rows_html}</tbody>
+            </table>
+            """
+            st.markdown(cal_table, unsafe_allow_html=True)
             
         st.subheader(LOCALES[lang]["feasibility_trend_title"])
         df_melted = df.melt(id_vars=["date"], value_vars=["Fertilizing", "Harvesting", "Spraying"], var_name="Operation", value_name="Feasibility")
