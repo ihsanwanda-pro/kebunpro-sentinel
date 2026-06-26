@@ -2,3 +2,7 @@ run = "python main.py"
 
 [nix]
 channel = "stable-23_05"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "main:app"]
