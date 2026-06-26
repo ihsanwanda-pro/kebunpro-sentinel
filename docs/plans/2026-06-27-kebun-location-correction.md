@@ -2,9 +2,9 @@
 
 > **For Antigravity:** REQUIRED WORKFLOW: Use `.agent/workflows/execute-plan.md` to execute this plan in single-flow mode.
 
-**Goal:** Correct the mismatched Kebun locations and coordinate presets across Flask backend, frontend JS, and Streamlit, while delivering a batch geocoding script and custom skill to scale to thousands of locations.
+**Goal:** Correct the mismatched Kebun locations and coordinate presets across Flask backend, frontend JS, and Streamlit, align the app header width with the main dashboard container, and deliver a batch geocoding script and custom skill to scale to thousands of locations.
 
-**Architecture:** We will implement unit tests for presets, update coordinates and standardized Indonesian location labels in backend/frontend databases, create a batch geocoding helper utility, and package the geocoding workflow as a reusable custom skill.
+**Architecture:** We will implement unit tests for presets, update coordinates and standardized Indonesian location labels in backend/frontend databases, adjust the header width styles in CSS, create a batch geocoding helper utility, and package the geocoding workflow as a reusable custom skill.
 
 **Tech Stack:** Python, Flask, Streamlit, HTML/Javascript, pytest, openlocationcode, requests.
 
@@ -149,4 +149,23 @@ Create the skill file detailing how to geocode locations in Indonesia and resolv
 Run:
 ```powershell
 git add .agents/skills/indonesia-geocoding/SKILL.md; git commit -m "docs: add indonesia-geocoding custom agent skill"
+```
+
+---
+
+### Task 4: Align App Header Container Width
+
+**Files:**
+- Modify: `static/style.css`
+
+**Step 1: Modify header-container class**
+Update the max-width of `.header-container` to `600px` to match the main layout container `.container`.
+
+**Step 2: Verify alignment in browser**
+Run the Flask server and verify visually that the settings gear button aligns perfectly with the right edge of the dashboard cards and tabs.
+
+**Step 3: Commit changes**
+Run:
+```powershell
+git add static/style.css; git commit -m "style: align header container width with main layout for visual symmetry"
 ```

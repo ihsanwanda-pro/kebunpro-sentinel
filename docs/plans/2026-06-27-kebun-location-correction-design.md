@@ -24,6 +24,9 @@ We will modify three files in the application to update the preset entries and c
 #### [MODIFY] [main.py](file:///c:/Users/oneda/Projects/nusantara-palm-sentinel-mvp/main.py)
 * Update default `LATITUDE` and `LONGITUDE` variables.
 
+#### [MODIFY] [style.css](file:///c:/Users/oneda/Projects/nusantara-palm-sentinel-mvp/static/style.css)
+* Align max-width of `.header-container` to `600px` to match the main layout container `.container`.
+
 ### Automation Tooling & Custom Skill
 
 #### [NEW] [geocode_presets.py](file:///c:/Users/oneda/Projects/nusantara-palm-sentinel-mvp/scripts/geocode_presets.py)
