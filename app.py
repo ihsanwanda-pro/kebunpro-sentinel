@@ -9,30 +9,67 @@ from agronomy import calculate_feasibility, DEFAULT_CONFIG
 
 st.set_page_config(page_title="Nusantara Palm-Estate Sentinel", page_icon="🌿", layout="wide")
 
-# Custom Green Agritech Theme styling
-st.markdown("""
-<style>
-    .reportview-container { background: #f0f4f1; }
-    .main .block-container { padding-top: 2rem; }
-    .card {
-        background-color: #ffffff;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        margin-bottom: 1rem;
-        border-left: 5px solid #2e7d32;
-    }
-    .score-badge-green {
-        background-color: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 8px; font-weight: bold;
-    }
-    .score-badge-yellow {
-        background-color: #fffde7; color: #f57f17; padding: 4px 8px; border-radius: 8px; font-weight: bold;
-    }
-    .score-badge-red {
-        background-color: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 8px; font-weight: bold;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Language and Theme Selectors
+lang = st.sidebar.selectbox("🌐 Bahasa / Language", ["Bahasa Indonesia", "English"], index=0)
+dark_mode = st.sidebar.toggle("Mode Gelap / Dark Mode", value=False)
+
+# Custom Theme styling
+if dark_mode:
+    st.markdown("""
+    <style>
+        .stApp { background-color: #0e1117; color: #ecf0f1; }
+        .reportview-container { background: #0e1117; }
+        .main .block-container { padding-top: 2rem; }
+        .card {
+            background-color: #1f2937;
+            color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+            border-left: 5px solid #2e7d32;
+        }
+        [data-testid="stMetricValue"] { color: #ecf0f1 !important; }
+        [data-testid="stMetricLabel"] { color: #9ca3af !important; }
+        h1, h2, h3, h4, h5, h6 { color: #f3f4f6 !important; }
+        p, span, label { color: #d1d5db; }
+        table { width: 100%; border-collapse: collapse; color: #e5e7eb; }
+        th { background-color: #374151 !important; color: #f3f4f6 !important; font-weight: bold; border: 1px solid #4b5563 !important; padding: 8px !important; }
+        td { background-color: #1f2937 !important; color: #e5e7eb !important; border: 1px solid #4b5563 !important; padding: 8px !important; }
+        tr:nth-child(even) td { background-color: #111827 !important; }
+        .score-badge-green { background-color: #064e3b !important; color: #34d399 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+        .score-badge-yellow { background-color: #78350f !important; color: #fbbf24 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+        .score-badge-red { background-color: #7f1d1d !important; color: #f87171 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+    </style>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <style>
+        .stApp { background-color: #f8fafc; color: #1e293b; }
+        .reportview-container { background: #f0f4f1; }
+        .main .block-container { padding-top: 2rem; }
+        .card {
+            background-color: #ffffff;
+            color: #1e293b;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            border-left: 5px solid #2e7d32;
+        }
+        [data-testid="stMetricValue"] { color: #1e293b !important; }
+        [data-testid="stMetricLabel"] { color: #475569 !important; }
+        h1, h2, h3, h4, h5, h6 { color: #0f172a !important; }
+        p, span, label { color: #334155; }
+        table { width: 100%; border-collapse: collapse; color: #1e293b; }
+        th { background-color: #f1f5f9 !important; color: #0f172a !important; font-weight: bold; border: 1px solid #cbd5e1 !important; padding: 8px !important; }
+        td { background-color: #ffffff !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; padding: 8px !important; }
+        tr:nth-child(even) td { background-color: #f8fafc !important; }
+        .score-badge-green { background-color: #e8f5e9 !important; color: #2e7d32 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+        .score-badge-yellow { background-color: #fffde7 !important; color: #f57f17 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+        .score-badge-red { background-color: #ffebee !important; color: #c62828 !important; padding: 4px 8px; border-radius: 8px; font-weight: bold; display: inline-block; }
+    </style>
+    """, unsafe_allow_html=True)
 
 LOCALES = {
     "Bahasa Indonesia": {
@@ -83,8 +120,7 @@ LOCALES = {
     }
 }
 
-# Language Selector
-lang = st.sidebar.selectbox("🌐 Bahasa / Language", list(LOCALES.keys()), index=0)
+# Language Selector already defined at top
 
 # 1. Preset locations
 PRESETS = {
@@ -441,7 +477,7 @@ try:
         st.subheader(LOCALES[lang]["feasibility_trend_title"])
         df_melted = df.melt(id_vars=["date"], value_vars=["Fertilizing", "Harvesting", "Spraying"], var_name="Operation", value_name="Feasibility")
         fig = px.line(df_melted, x="date", y="Feasibility", color="Operation", labels={"Feasibility": "Feasibility (%)", "date": "Date"})
-        fig.update_layout(yaxis_range=[0, 105], hovermode="x unified")
+        fig.update_layout(yaxis_range=[0, 105], hovermode="x unified", template="plotly_dark" if dark_mode else "plotly_white")
         st.plotly_chart(fig, use_container_width=True)
         
     with tab_audit:
@@ -537,7 +573,7 @@ try:
             df_chart_melted = df_chart.melt(id_vars=["Date"], value_vars=[LOCALES[lang]["audit_forecast"], LOCALES[lang]["audit_actual"]], var_name="Type", value_name=f"{sel_param} ({unit})")
             
             fig_audit = px.line(df_chart_melted, x="Date", y=f"{sel_param} ({unit})", color="Type", title=f"{LOCALES[lang]['audit_chart_title']} - {sel_param}")
-            fig_audit.update_layout(hovermode="x unified")
+            fig_audit.update_layout(hovermode="x unified", template="plotly_dark" if dark_mode else "plotly_white")
             st.plotly_chart(fig_audit, use_container_width=True)
             
         except Exception as err:
