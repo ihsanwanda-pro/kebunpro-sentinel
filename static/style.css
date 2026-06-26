@@ -68,7 +68,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .header-container {
-    max-width: 800px;
+    max-width: 600px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
