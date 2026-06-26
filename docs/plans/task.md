@@ -1,8 +1,8 @@
-| id | task | status | notes |
-| --- | --- | --- | --- |
-| task-1 | Theme Toggle & Custom CSS Injection | completed | |
-| task-2 | Accurate Historical Weather Audit | completed | |
-| task-3 | Indonesian Spelling & Terminology UX Review | completed | |
-| task-4 | Complete Feasibility Score Summary Alert | completed | |
-| task-5 | SawitPro Marketing CTA Card | completed | |
-| task-6 | Hover Tooltips for Calendar cells | completed | |
+| Task | Status | Description |
+|---|---|---|
+| 1 | `[x]` | Setup Backend Audit API `/api/audit` & coordinates parameters in `main.py` |
+| 2 | `[x]` | Update HTML structure `templates/dashboard.html` with tabs, language/theme controls |
+| 3 | `[x]` | Overhaul CSS styling in `static/style.css` for Dark Mode variables, Tooltips, & SawitPro CTA |
+| 4 | `[x]` | Implement JS logic in `static/app.js` for Bilingual/Localization, Theme, & warnings/tooltips |
+| 5 | `[x]` | Implement dynamic audit scores and Chart.js graphs in frontend |
+| 6 | `[x]` | Verify application locally & run test suites |

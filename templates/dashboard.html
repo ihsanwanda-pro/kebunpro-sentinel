@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nusantara Palm-Estate Sentinel</title>
+    <!-- Google Fonts for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN for historical forecast audit line graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="logo-icon">🌿</span>
+                <div>
+                    <h1 id="txt-app-title">Nusantara Palm-Estate Sentinel</h1>
+                    <p id="txt-app-subtitle">Optimalkan kegiatan operasional harian berdasarkan indikator cuaca satelit & kelembapan tanah.</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-settings-toggle" class="icon-btn" title="Pengaturan Lokasi & Parameter">⚙️</button>
+                <select id="select-lang" class="custom-select">
+                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                    <option value="English">English</option>
+                </select>
+                <button id="btn-theme-toggle" class="icon-btn" title="Toggle Tema">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Collapsible Settings Panel -->
+    <aside id="settings-sidebar" class="settings-sidebar hidden">
+        <div class="sidebar-header">
+            <h2 id="txt-settings-title">🌿 Pengaturan Area & Parameter</h2>
+            <button id="btn-settings-close" class="close-btn">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <!-- Location Selection -->
+            <div class="settings-section">
+                <h3 id="txt-loc-selection-title">Pemilihan Lokasi</h3>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="loc-mode" value="preset" checked>
+                        <span id="txt-loc-preset-label">Preset Perkebunan</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="loc-mode" value="custom">
+                        <span id="txt-loc-custom-label">Koordinat Kustom</span>
+                    </label>
+                </div>
+
+                <div id="group-preset-select" class="form-group">
+                    <label for="select-preset" id="txt-select-preset-label">Pilih Perkebunan</label>
+                    <select id="select-preset" class="custom-select">
+                        <option value="Riau (Pekanbaru)" selected>Riau (Pekanbaru)</option>
+                        <option value="North Sumatra (Medan)">North Sumatra (Medan)</option>
+                        <option value="Central Kalimantan (Sampit)">Central Kalimantan (Sampit)</option>
+                    </select>
+                </div>
+
+                <div id="group-custom-coords" class="form-group hidden">
+                    <div class="coords-row">
+                        <div class="coords-col">
+                            <label for="input-lat" id="txt-lat-label">Lintang (Latitude)</label>
+                            <input type="number" id="input-lat" step="0.001" value="0.507">
+                        </div>
+                        <div class="coords-col">
+                            <label for="input-lon" id="txt-lon-label">Bujur (Longitude)</label>
+                            <input type="number" id="input-lon" step="0.001" value="101.447">
+                        </div>
+                    </div>
+                    <button id="btn-apply-coords" class="primary-btn">Terapkan Lokasi</button>
+                </div>
+            </div>
+
+            <!-- Agronomic parameters sliders -->
+            <div class="settings-section">
+                <h3 id="txt-agronomic-params-title">⚙️ Parameter Agronomis</h3>
+                
+                <!-- Fertilizing Settings -->
+                <details open class="param-group">
+                    <summary id="txt-param-fert-title">Pengaturan Pemupukan</summary>
+                    <div class="slider-control">
+                        <label for="slider-fert-runoff"><span id="txt-label-fert-runoff">Curah Hujan Maksimal Runoff (mm)</span>: <span id="val-fert-runoff">15</span></label>
+                        <input type="range" id="slider-fert-runoff" min="5" max="30" step="1" value="15">
+                    </div>
+                    <div class="slider-control">
+                        <label for="slider-fert-min-moist"><span id="txt-label-fert-min-moist">Kelembapan Tanah Minimal (Vol %)</span>: <span id="val-fert-min-moist">20</span>%</label>
+                        <input type="range" id="slider-fert-min-moist" min="5" max="30" step="1" value="20">
+                    </div>
+                    <div class="slider-control">
+                        <label for="slider-fert-max-moist"><span id="txt-label-fert-max-moist">Batas Kejenuhan Tanah (Saturated) Maks.</span>: <span id="val-fert-max-moist">45</span>%</label>
+                        <input type="range" id="slider-fert-max-moist" min="35" max="60" step="1" value="45">
+                    </div>
+                </details>
+
+                <!-- Harvesting Settings -->
+                <details class="param-group">
+                    <summary id="txt-param-harv-title">Pengaturan Pemanenan</summary>
+                    <div class="slider-control">
+                        <label for="slider-harv-mud"><span id="txt-label-harv-mud">Curah Hujan Jalan Lumpur (mm)</span>: <span id="val-harv-mud">15</span></label>
+                        <input type="range" id="slider-harv-mud" min="5" max="40" step="1" value="15">
+                    </div>
+                    <div class="slider-control">
+                        <label for="slider-harv-wind"><span id="txt-label-harv-wind">Kecepatan Angin Bahaya (km/jam)</span>: <span id="val-harv-wind">25</span></label>
+                        <input type="range" id="slider-harv-wind" min="15" max="45" step="1" value="25">
+                    </div>
+                </details>
+
+                <!-- Spraying Settings -->
+                <details class="param-group">
+                    <summary id="txt-param-spray-title">Pengaturan Penyemprotan</summary>
+                    <div class="slider-control">
+                        <label for="slider-spray-wind-med"><span id="txt-label-spray-wind-med">Angin Peringatan (km/jam)</span>: <span id="val-spray-wind-med">15</span></label>
+                        <input type="range" id="slider-spray-wind-med" min="10" max="25" step="1" value="15">
+                    </div>
+                    <div class="slider-control">
+                        <label for="slider-spray-wind-high"><span id="txt-label-spray-wind-high">Angin Kritis (km/jam)</span>: <span id="val-spray-wind-high">25</span></label>
+                        <input type="range" id="slider-spray-wind-high" min="20" max="40" step="1" value="25">
+                    </div>
+                    <div class="slider-control">
+                        <label for="slider-spray-wash"><span id="txt-label-spray-wash">Curah Hujan Cuci Spray (mm)</span>: <span id="val-spray-wash">2.0</span></label>
+                        <input type="range" id="slider-spray-wash" min="0.5" max="10.0" step="0.5" value="2.0">
+                    </div>
+                </details>
+            </div>
+        </div>
+    </aside>
+
+    <div class="tabs-nav">
+        <button id="btn-tab-planner" class="tab-btn active"><span class="tab-icon">📅</span> <span id="txt-tab-planner">Perencana Operasi</span></button>
+        <button id="btn-tab-audit" class="tab-btn"><span class="tab-icon">📈</span> <span id="txt-tab-audit">Audit Akurasi</span></button>
+    </div>
+
+    <main class="container">
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p id="txt-loading-text">Memuat prakiraan cuaca satelit...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" class="hidden">
+            
+            <!-- SECTION 1: OPERATIONS PLANNER TAB -->
+            <div id="view-planner" class="tab-content">
+                <!-- Summary Alert Notifications -->
+                <div id="summary-alerts" class="summary-alerts"></div>
+
+                <!-- SawitPro Partnership CTA Card -->
+                <div id="marketing-card" class="sawit-cta-card">
+                    <!-- Dynamic bilingual HTML injected by JS -->
+                </div>
+
+                <!-- Forecast Cards List -->
+                <div id="forecast-list" class="forecast-list">
+                    <!-- Cards will be injected via javascript -->
+                </div>
+            </div>
+
+            <!-- SECTION 2: ACCURACY AUDIT TAB -->
+            <div id="view-audit" class="tab-content hidden">
+                <div class="card audit-controls-card">
+                    <p id="txt-audit-desc" class="audit-desc">Membandingkan data prakiraan cuaca historis dengan data observasi satelit aktual dari Open-Meteo Archive untuk mengevaluasi reliabilitas model.</p>
+                    
+                    <div class="slider-control">
+                        <label for="slider-audit-days"><span id="txt-audit-select-days">Pilih Jendela Evaluasi Historis (Hari)</span>: <span id="val-audit-days">7</span></label>
+                        <input type="range" id="slider-audit-days" min="7" max="30" step="1" value="7">
+                    </div>
+                </div>
+
+                <!-- Accuracy Metric Scorecards Grid -->
+                <div class="audit-scorecards">
+                    <div class="metric-card">
+                        <h4 id="txt-audit-overall-lbl">Akurasi Prakiraan Keseluruhan</h4>
+                        <p class="metric-value" id="val-audit-overall">-</p>
+                    </div>
+                    <div class="metric-card">
+                        <h4 id="txt-audit-temp-lbl">Akurasi Suhu Maksimum</h4>
+                        <p class="metric-value" id="val-audit-temp">-</p>
+                    </div>
+                    <div class="metric-card">
+                        <h4 id="txt-audit-rain-lbl">Akurasi Curah Hujan</h4>
+                        <p class="metric-value" id="val-audit-rain">-</p>
+                    </div>
+                    <div class="metric-card">
+                        <h4 id="txt-audit-wind-lbl">Akurasi Kecepatan Angin</h4>
+                        <p class="metric-value" id="val-audit-wind">-</p>
+                    </div>
+                </div>
+
+                <!-- Accuracy Comparison Chart Card -->
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <h3 id="txt-audit-chart-title">Perbandingan Historis (Prakiraan vs Observasi Aktual)</h3>
+                        <select id="select-audit-param" class="custom-select select-mini">
+                            <!-- Options updated dynamically via JS -->
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="audit-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- Template for a Forecast Card -->
+    <template id="card-template">
+        <div class="forecast-card">
+            <div class="card-header" onclick="toggleDetails(this)">
+                <div class="date-info">
+                    <h2 class="day-name">Senin</h2>
+                    <p class="full-date">12 Agustus 2026</p>
+                </div>
+                <div class="weather-summary">
+                    <span class="temp">28°C</span>
+                    <span class="rain">🌧️ 5mm</span>
+                </div>
+                <div class="expand-icon">▼</div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Operation Item: Fertilizer -->
+                <div class="operation-item" data-op="fertilizer">
+                    <div class="op-icon">🌱</div>
+                    <div class="op-details">
+                        <h3 class="txt-op-fert-title">Pemupukan</h3>
+                        <p class="op-status-text">Aman dilakukan</p>
+                    </div>
+                    <div class="op-badge-container">
+                        <div class="op-badge"></div>
+                        <div class="custom-tooltip">Indikator Cuaca Optimal</div>
+                    </div>
+                </div>
+
+                <!-- Operation Item: Harvesting -->
+                <div class="operation-item" data-op="harvesting">
+                    <div class="op-icon">🚜</div>
+                    <div class="op-details">
+                        <h3 class="txt-op-harv-title">Pemanenan</h3>
+                        <p class="op-status-text">Hati-hati, tanah sedikit basah</p>
+                    </div>
+                    <div class="op-badge-container">
+                        <div class="op-badge"></div>
+                        <div class="custom-tooltip">Indikator Cuaca Optimal</div>
+                    </div>
+                </div>
+
+                <!-- Operation Item: Spraying -->
+                <div class="operation-item" data-op="spraying">
+                    <div class="op-icon">🚁</div>
+                    <div class="op-details">
+                        <h3 class="txt-op-spray-title">Penyemprotan</h3>
+                        <p class="op-status-text">Tunda, hujan terlalu lebat</p>
+                    </div>
+                    <div class="op-badge-container">
+                        <div class="op-badge"></div>
+                        <div class="custom-tooltip">Indikator Cuaca Optimal</div>
+                    </div>
+                </div>
+                
+                <!-- Weather detail sub-row -->
+                <div class="weather-details">
+                    <p><strong class="lbl-detail-temp">Suhu Maks</strong><span class="detail-temp">28°C</span></p>
+                    <p><strong class="lbl-detail-rain">Hujan</strong><span class="detail-rain">0 mm</span></p>
+                    <p><strong class="lbl-detail-wind">Angin</strong><span class="detail-wind">15 km/j</span></p>
+                    <p><strong class="lbl-detail-humidity">Kelembapan</strong><span class="detail-humidity">75%</span></p>
+                    <p><strong class="lbl-detail-soil">Tanah (0-7cm)</strong><span class="detail-soil">35% Vol</span></p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
