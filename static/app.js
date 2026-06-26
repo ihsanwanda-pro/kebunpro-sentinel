@@ -537,6 +537,8 @@ function updatePageLanguage(lang) {
 
 // Fetch forecast from server and cache locally
 function fetchForecast(lat, lon) {
+    resetKebunCardSkeleton();
+    updateKebunCard(null); // update name/location immediately
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('dashboard').classList.add('hidden');
     
@@ -565,6 +567,123 @@ function fetchForecast(lat, lon) {
 // Show error loading
 function showError(msg) {
     document.getElementById('loading').innerHTML = `<p style="color:red; font-weight:bold;">${msg}</p>`;
+}
+
+// ── Kebun Name Storage ────────────────────────────────────────
+const KBP_NAME_PREFIX = 'kbp_kebun_name_';
+
+function getStoredKebunName(key) {
+    return localStorage.getItem(KBP_NAME_PREFIX + key) || key;
+}
+
+function setStoredKebunName(key, name) {
+    localStorage.setItem(KBP_NAME_PREFIX + key, name.trim() || key);
+}
+
+function getActivePresetKey() {
+    const isPreset = document.querySelector('input[name="loc-mode"][value="preset"]').checked;
+    return isPreset ? document.getElementById('select-preset').value : '_custom';
+}
+
+function getActiveLocation() {
+    const isPreset = document.querySelector('input[name="loc-mode"][value="preset"]').checked;
+    if (isPreset) {
+        const key = document.getElementById('select-preset').value;
+        return PRESETS[key].location;
+    }
+    return currentLanguage === 'Bahasa Indonesia' ? 'Lokasi Kustom' : 'Custom Location';
+}
+
+// ── Kebun Context Card ────────────────────────────────────────
+
+// Update the Kebun Context Card with live location + today's weather
+function updateKebunCard(todayWeather) {
+    const isIndo = currentLanguage === 'Bahasa Indonesia';
+    const key    = getActivePresetKey();
+    const name   = getStoredKebunName(key);
+    const loc    = getActiveLocation();
+
+    document.getElementById('kcc-name').textContent     = name;
+    document.getElementById('kcc-location').textContent = loc;
+
+    if (!todayWeather) return; // keep skeleton
+
+    const ids = ['kcc-temp','kcc-rain','kcc-wind','kcc-humidity','kcc-soil','kcc-date'];
+    ids.forEach(id => {
+        document.getElementById(id).classList.remove('skeleton','skeleton-line');
+    });
+
+    document.getElementById('kcc-temp').textContent     = `${Math.round(todayWeather.temp_max)}\u00B0C`;
+    document.getElementById('kcc-rain').textContent     = `${todayWeather.rain.toFixed(1)} mm`;
+    document.getElementById('kcc-wind').textContent     = isIndo
+        ? `${todayWeather.wind_speed.toFixed(1)} km/jam`
+        : `${todayWeather.wind_speed.toFixed(1)} km/h`;
+    document.getElementById('kcc-humidity').textContent = `${todayWeather.humidity.toFixed(0)}%`;
+    document.getElementById('kcc-soil').textContent     = `${(todayWeather.soil_moisture * 100).toFixed(0)}% Vol`;
+
+    const dayNamesIndo = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const dayNamesEn   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const dateObj   = new Date(forecastData[0].date);
+    const dayName   = isIndo ? dayNamesIndo[dateObj.getDay()] : dayNamesEn[dateObj.getDay()];
+    const formatted = dateObj.toLocaleDateString(isIndo ? 'id-ID' : 'en-US', {
+        day: 'numeric', month: 'long', year: 'numeric'
+    });
+    document.getElementById('kcc-date').textContent = isIndo
+        ? `Hari Ini \u00B7 ${dayName}, ${formatted}`
+        : `Today \u00B7 ${dayName}, ${formatted}`;
+}
+
+// Reset Kebun Context Card to skeleton state before a new fetch
+function resetKebunCardSkeleton() {
+    ['kcc-temp','kcc-rain','kcc-wind','kcc-humidity','kcc-soil'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.add('skeleton');
+        el.textContent = '--';
+    });
+    const dateEl = document.getElementById('kcc-date');
+    dateEl.classList.add('skeleton-line');
+    dateEl.textContent = 'Memuat...';
+}
+
+// Initialize inline name editor with localStorage persistence
+function initKebunNameEditor() {
+    const nameSpan  = document.getElementById('kcc-name');
+    const editBtn   = document.getElementById('kcc-edit-btn');
+    const nameInput = document.getElementById('kcc-name-input');
+
+    function openEditor() {
+        const key = getActivePresetKey();
+        nameInput.value = getStoredKebunName(key);
+        nameSpan.classList.add('hidden');
+        editBtn.classList.add('hidden');
+        nameInput.classList.remove('hidden');
+        nameInput.focus();
+        nameInput.select();
+    }
+
+    function closeEditor() {
+        const key = getActivePresetKey();
+        const val = nameInput.value.trim() || key;
+        setStoredKebunName(key, val);
+        nameSpan.textContent = val;
+        nameSpan.classList.remove('hidden');
+        editBtn.classList.remove('hidden');
+        nameInput.classList.add('hidden');
+    }
+
+    editBtn.addEventListener('click', openEditor);
+    nameSpan.addEventListener('click', openEditor);
+
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter')  closeEditor();
+        if (e.key === 'Escape') {
+            nameInput.classList.add('hidden');
+            nameSpan.classList.remove('hidden');
+            editBtn.classList.remove('hidden');
+        }
+    });
+
+    nameInput.addEventListener('blur', closeEditor);
 }
 
 // Render 7-day operations planner forecast cards
@@ -631,6 +750,9 @@ function renderForecast(data) {
 
     // Update Warnings summary alerts
     updateSummaryAlerts(data, config, currentLanguage);
+
+    // Update Kebun Context Card with today's live weather
+    updateKebunCard(data[0].weather);
 }
 
 // Format each operation item inside a day card
@@ -1026,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeLocationSettings();
     initializeParametersSliders();
     initializeAuditEvents();
+    initKebunNameEditor();
     
     updatePageLanguage('Bahasa Indonesia');
     fetchForecast();
