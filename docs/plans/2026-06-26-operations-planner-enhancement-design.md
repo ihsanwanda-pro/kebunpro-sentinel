@@ -51,7 +51,7 @@ Consolidate alerts for the upcoming 3 days of operations to reduce UI vertical c
 A premium promotion card is placed directly under the summary recommendations box:
 - Title: `🛡️ Kemitraan Toko SawitPro`
 - Copy: `"Pastikan gunakan pupuk 100% Asli! Beli pupuk premium, racun hama berkualitas, dan semua alat kebutuhan kebun sawit Anda secara aman di sini."`
-- Button: Redirects to `https://tokopedia.link/sawitpro`.
+- Button: Redirects to `https://toko.sawitpro.id/?`.
 
 ---
 
