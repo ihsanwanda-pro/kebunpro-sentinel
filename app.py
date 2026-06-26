@@ -73,22 +73,22 @@ else:
 
 LOCALES = {
     "Bahasa Indonesia": {
-        "title": "🌿 Nusantara Palm-Estate Operations Planner",
-        "subtitle": "Optimalkan kegiatan operasional harian (Pemupukan, Panen, Penyemprotan) berdasarkan indikator cuaca satelit & kelembaban tanah.",
-        "estate_controls": "🌿 Kontrol Perkebunan",
+        "title": "🌿 Perencana & Sentinel Operasional Perkebunan Sawit",
+        "subtitle": "Optimalkan kegiatan operasional harian (Pemupukan, Pemanenan, Penyemprotan) berdasarkan indikator cuaca satelit & kelembapan tanah.",
+        "estate_controls": "🌿 Pengaturan Lokasi & Parameter",
         "location_selection": "Pemilihan Lokasi",
         "preset_estates": "Preset Perkebunan",
         "custom_coordinates": "Koordinat Kustom",
         "select_estate": "Pilih Perkebunan",
         "latitude": "Lintang (Latitude)",
         "longitude": "Bujur (Longitude)",
-        "agronomic_params": "⚙️ Parameter Agronomi",
+        "agronomic_params": "⚙️ Parameter Agronomis",
         "fert_settings": "Pengaturan Pemupukan",
-        "harv_settings": "Pengaturan Logistik Panen",
-        "spray_settings": "Pengaturan Penyemprotan Kimia",
+        "harv_settings": "Pengaturan Pemanenan",
+        "spray_settings": "Pengaturan Penyemprotan",
         "max_rain_runoff": "Curah Hujan Maksimal Runoff (mm)",
-        "min_soil_moist": "Kelembaban Tanah Minimal (Vol %)",
-        "max_sat_moist": "Kelembaban Saturated Maksimal",
+        "min_soil_moist": "Kelembapan Tanah Minimal (Vol %)",
+        "max_sat_moist": "Batas Kejenuhan Tanah (Saturated) Maks.",
         "impassable_mud_rain": "Curah Hujan Jalan Lumpur (mm)",
         "danger_wind_speed": "Kecepatan Angin Bahaya (km/jam)",
         "caution_wind": "Angin Peringatan (km/jam)",
@@ -211,16 +211,16 @@ def fetch_data(latitude, longitude):
     return df
 
 LOCALES["Bahasa Indonesia"].update({
-    "tab_planner": "📅 Rencana Operasional",
-    "tab_audit": "📈 Audit Akurasi Cuaca",
-    "tab_calculator": "💰 Kalkulator Manfaat",
-    "tab_guideline": "📖 Panduan Penggunaan",
-    "live_soil_status": "🌱 Status Tanah Live",
-    "location_map": "📍 Peta Lokasi Perkebunan",
-    "outlook_insights": "📋 Rangkuman Rekomendasi Lapangan (7 Hari)",
+    "tab_planner": "📅 Perencana Operasi",
+    "tab_audit": "📈 Audit Akurasi Prakiraan",
+    "tab_calculator": "💰 Kalkulator Manfaat Finansial",
+    "tab_guideline": "📖 Panduan & Metodologi",
+    "live_soil_status": "🌱 Status Kelembapan Tanah Terkini",
+    "location_map": "📍 Peta Area Perkebunan",
+    "outlook_insights": "📋 Rekomendasi Operasional Tiga Hari Ke Depan",
     "insight_rain_fert": "Peringatan Hujan Lebat pada hari {day}: Berisiko hanyut (runoff). Tunda pemupukan.",
     "insight_wind_spray": "Peringatan Angin Kencang pada hari {day}: Berisiko drift kimia. Tunda penyemprotan.",
-    "insight_optimal_all": "Kondisi cuaca 3 hari ke depan sangat baik. Lanjutkan semua operasional sesuai jadwal.",
+    "insight_optimal_all": "Kondisi cuaca 3 hari ke depan sangat baik. Seluruh kegiatan operasional dapat berjalan sesuai jadwal.",
     "date_col": "Tanggal",
     "fert_col": "Pemupukan (Fertilizing)",
     "harv_col": "Pemanenan Buah (Harvesting)",
@@ -264,15 +264,15 @@ LOCALES["Bahasa Indonesia"].update({
     "guide_sec1_title": "1. Logika Feasibility (Kelayakan) Kegiatan Perkebunan",
     "guide_sec2_title": "2. Formulasi Perhitungan Akurasi Audit Cuaca",
     "guide_sec3_title": "3. Metodologi Perhitungan Kalkulator Manfaat",
-    "guide_sec4_title": "4. Tentang Parameter Kelembaban Tanah",
+    "guide_sec4_title": "4. Tentang Parameter Kelembapan Tanah",
     "optimal": "Optimal",
     "caution": "Hati-hati",
     "unsuitable": "Tidak Cocok",
     
     # KPI keys
-    "kpi_topsoil": "Kelembaban Lapisan Atas (0-7cm)",
-    "kpi_topsoil_desc": "Zona penyerapan pupuk. Kelembaban optimal diperlukan agar pupuk larut ke tanah tanpa menguap atau mengalir hilang.",
-    "kpi_subsoil": "Kelembaban Lapisan Dalam (7-28cm)",
+    "kpi_topsoil": "Kelembapan Lapisan Atas (0-7cm)",
+    "kpi_topsoil_desc": "Zona penyerapan pupuk. Kelembapan optimal diperlukan agar pupuk larut ke tanah tanpa menguap atau mengalir hilang.",
+    "kpi_subsoil": "Kelembapan Lapisan Dalam (7-28cm)",
     "kpi_subsoil_desc": "Zona perakaran jangkar pohon sawit. Memantau cadangan air tanah jangka panjang untuk menghindari stres kekeringan.",
     "kpi_temp": "Suhu Udara Maksimum",
     "kpi_temp_desc": "Suhu di atas 35°C meningkatkan risiko penguapan unsur nitrogen (volatilisasi urea).",
@@ -645,7 +645,7 @@ try:
                 **Logika Penentuan Skor Kelayakan Kegiatan Kebun:**
                 *   **Pemupukan (Fertilizing):**
                     *   Pupuk NPK/Urea membutuhkan sedikit air untuk larut ke tanah. Namun, curah hujan > 15 mm dalam sehari akan membilas permukaan tanah dan mencuci pupuk (leaching/runoff), mengurangi efisiensi hingga **80%**.
-                    *   Tanah kering (kelembaban < 20%) tanpa hujan menyebabkan pupuk menguap menjadi gas amonia (volatilisasi Nitrogen).
+                    *   Tanah kering (kelembapan < 20%) tanpa hujan menyebabkan pupuk menguap menjadi gas amonia (volatilisasi Nitrogen).
                 *   **Pemanenan (Harvesting):**
                     *   Hujan lebat (> 15 mm) merusak struktur jalan tanah liat perkebunan kelapa sawit menjadi lumpur tebal. Truk angkut buah akan terjebak, dan pelepah basah berbahaya bagi keselamatan pemanen sawit.
                 *   **Penyemprotan (Spraying):**
@@ -775,8 +775,8 @@ try:
         with st.expander(LOCALES[lang]["guide_sec4_title"]):
             if lang == "Bahasa Indonesia":
                 st.markdown("""
-                **Memahami Lapisan Kelembaban Tanah:**
-                *   **Lapisan Atas (0-7cm):** Merupakan area permukaan tanah tempat pemupukan ditaburkan. Kelembaban di area ini sangat sensitif terhadap panas matahari harian. Jika terlalu kering, pupuk tidak dapat larut untuk diserap akar tanaman.
+                **Memahami Lapisan Kelembapan Tanah:**
+                *   **Lapisan Atas (0-7cm):** Merupakan area permukaan tanah tempat pemupukan ditaburkan. Kelembapan di area ini sangat sensitif terhadap panas matahari harian. Jika terlalu kering, pupuk tidak dapat larut untuk diserap akar tanaman.
                 *   **Lapisan Dalam (7-28cm):** Merupakan area perakaran aktif pohon kelapa sawit dewasa untuk menyerap air tanah. Kadar air di lapisan ini cenderung lebih stabil dan menggambarkan ketahanan pohon sawit terhadap stres air (drought/El Niño).
                 """)
             else:
